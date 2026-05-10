@@ -158,6 +158,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f7f0;min-height:10
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* WA FLOATING BUTTON */
+.wa-float{position:fixed;bottom:28px;right:20px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+.wa-tooltip{background:var(--green-deep);color:#fff;font-size:12px;font-weight:600;padding:8px 14px;border-radius:20px;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.18);opacity:0;transform:translateX(10px);transition:.25s;pointer-events:none;}
+.wa-float:hover .wa-tooltip{opacity:1;transform:translateX(0);}
+.wa-btn{width:56px;height:56px;background:#25d366;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(37,211,102,.45);cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s;animation:wa-pulse 2.5s infinite;}
+.wa-btn:hover{transform:scale(1.08);box-shadow:0 8px 28px rgba(37,211,102,.6);}
+@keyframes wa-pulse{0%,100%{box-shadow:0 6px 20px rgba(37,211,102,.45)}50%{box-shadow:0 6px 28px rgba(37,211,102,.75),0 0 0 8px rgba(37,211,102,.12)}}
 </style>
 </head>
 <body>
@@ -555,5 +563,31 @@ sb.channel('pengumuman-realtime')
     else showToast('Ada pengumuman baru!');
   }).subscribe();
 </script>
+
+<!-- WA FLOATING CS BUTTON -->
+<div class="wa-float">
+  <span class="wa-tooltip">💬 Hubungi CS kami</span>
+  <a class="wa-btn"
+     href="https://wa.me/6285892004051?text=Halo%20Admin%20Laporan%20Hijau%2C%20saya%20butuh%20bantuan%20%F0%9F%8C%BF"
+     target="_blank" rel="noopener" aria-label="Hubungi CS via WhatsApp">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Kepala -->
+      <circle cx="15" cy="9.5" r="4" fill="white"/>
+      <!-- Headphone band -->
+      <path d="M9 10.5 Q9 5 15 5 Q21 5 21 10.5" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <!-- Ear cup kiri -->
+      <rect x="7.5" y="10" width="3" height="4.5" rx="1.5" fill="white"/>
+      <!-- Ear cup kanan -->
+      <rect x="19.5" y="10" width="3" height="4.5" rx="1.5" fill="white"/>
+      <!-- Badan / bahu -->
+      <path d="M9 21.5 Q9 17 15 17 Q21 17 21 21.5" fill="white"/>
+      <!-- Mic boom -->
+      <path d="M8 14 Q6.5 17 8.5 18.5" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <!-- Mic bulat -->
+      <circle cx="8.5" cy="19" r="1.2" fill="white"/>
+    </svg>
+  </a>
+</div>
+
 </body>
 </html>
