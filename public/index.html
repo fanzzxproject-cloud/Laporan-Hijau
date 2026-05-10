@@ -120,6 +120,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f7f0;min-height:10
 .btn-cek{width:100%;padding:13px;background:var(--green-deep);color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;margin-top:4px;}
 .btn-cek:disabled{opacity:.6;cursor:not-allowed;}
 
+/* MODAL KONFIRMASI */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;padding:20px;}
 .modal-overlay.show{opacity:1;pointer-events:all;}
 .modal-box{background:#fff;border-radius:20px;padding:24px;width:100%;max-width:400px;transform:scale(.95);transition:transform .25s ease;}
@@ -132,6 +133,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f7f0;min-height:10
 .modal-cancel{flex:1;padding:12px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;font-family:inherit;font-size:14px;font-weight:600;color:#555;cursor:pointer;}
 .modal-confirm{flex:1;padding:12px;border:none;border-radius:10px;background:var(--green-deep);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
 
+/* POPUP BUKTI LAPORAN — ditengah layar, bukan slide bawah */
 .popup-bukti-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:600;opacity:0;pointer-events:none;transition:opacity .3s;padding:24px;}
 .popup-bukti-overlay.show{opacity:1;pointer-events:all;}
 .popup-bukti-box{background:#fff;border-radius:20px;padding:24px;width:100%;max-width:380px;transform:scale(.9);transition:transform .3s ease;box-shadow:0 24px 60px rgba(0,0,0,.3);}
@@ -156,13 +158,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f7f0;min-height:10
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px;}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-.wa-float{position:fixed;bottom:28px;right:20px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
-.wa-tooltip{background:var(--green-deep);color:#fff;font-size:12px;font-weight:600;padding:8px 14px;border-radius:20px;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.18);opacity:0;transform:translateX(10px);transition:.25s;pointer-events:none;}
-.wa-float:hover .wa-tooltip{opacity:1;transform:translateX(0);}
-.wa-btn{width:56px;height:56px;background:#25d366;border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(37,211,102,.45);cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s;animation:wa-pulse 2.5s infinite;}
-.wa-btn:hover{transform:scale(1.08);box-shadow:0 8px 28px rgba(37,211,102,.6);}
-@keyframes wa-pulse{0%,100%{box-shadow:0 6px 20px rgba(37,211,102,.45)}50%{box-shadow:0 6px 28px rgba(37,211,102,.75),0 0 0 8px rgba(37,211,102,.12)}}
 </style>
 </head>
 <body>
@@ -334,10 +329,6 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const API = window.location.origin;
 let kategoriPilih = '';
 
-// ── KONFIGURASI FONNTE ── Ganti 2 nilai di bawah ini
-const FONNTE_TOKEN = 'hHkyqN7cdbc3zPdQGC33';   // token dari fonnte.com
-const FONNTE_GRUP  = 'Test';    // nama grup WA persis
-
 setTimeout(() => {
   document.getElementById('splash').style.opacity = '0';
   setTimeout(() => document.getElementById('splash').style.display = 'none', 500);
@@ -429,36 +420,6 @@ function salinId() {
   }).catch(() => showToast('Gagal salin, copy manual ya: ' + id));
 }
 
-// ── NOTIF WA FONNTE ──────────────────────────────
-async function kirimNotifWAGrup(laporan) {
-  if (!FONNTE_TOKEN || FONNTE_TOKEN === 'hHkyqN7cdbc3zPdQGC33') return;
-  const waktu = new Date(laporan.created_at).toLocaleString('id-ID', {
-    timeZone: 'Asia/Jakarta',
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
-  const pesan =
-`🌿 *LAPORAN BARU - Laporan Hijau*
-
-🆔 ID: ${laporan.laporan_id || laporan.id}
-👤 Nama: ${laporan.nama_pelapor}
-🏫 Kelas: ${laporan.kelas}
-📍 Lokasi: ${laporan.lokasi}
-🗂️ Kategori: ${laporan.kategori}
-📝 Keterangan: ${laporan.penjelasan}
-🕐 Waktu: ${waktu}
-
-👉 Tindaklanjuti di:
-https://petugasadiwiyata239.web.id`;
-  try {
-    await fetch('https://api.fonnte.com/send', {
-      method: 'POST',
-      headers: { 'Authorization': FONNTE_TOKEN, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ target: FONNTE_GRUP, message: pesan, countryCode: '62' })
-    });
-  } catch(e) { console.warn('Notif WA gagal:', e.message); }
-}
-
 // UPLOAD & KIRIM
 async function uploadFoto(file) {
   const res = await fetch(`${API}/api/upload-url`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({filename:file.name}) });
@@ -486,8 +447,6 @@ async function kirimLaporan() {
     const json = await res.json();
     if (!res.ok) throw new Error(json.error);
     simpanRiwayat({id:json.data.id, laporan_id:json.data.laporan_id, nama_pelapor:nama, kelas, lokasi, kategori:kategoriPilih, penjelasan, status:'baru', created_at:json.data.created_at});
-    // Kirim notif WA ke grup petugas
-    kirimNotifWAGrup({...json.data, nama_pelapor:nama, kelas, lokasi, kategori:kategoriPilih, penjelasan});
     // Reset form
     ['namaPelapor','penjelasan'].forEach(id => document.getElementById(id).value='');
     document.getElementById('kelas').value='';
@@ -497,7 +456,7 @@ async function kirimLaporan() {
     document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
     kategoriPilih='';
     // Tampilkan popup bukti
-    bukaPopupBukti(json.data, nama, kelas, json.data.kategori, lokasi);
+    bukaPopupBukti(json.data, nama, kelas, kategoriPilih||json.data.kategori, lokasi);
   } catch(e) { showToast('Gagal kirim. Coba lagi!'); console.error(e); }
   btn.disabled=false; btn.innerHTML='Kirim Laporan';
 }
@@ -596,24 +555,5 @@ sb.channel('pengumuman-realtime')
     else showToast('Ada pengumuman baru!');
   }).subscribe();
 </script>
-
-<!-- WA FLOATING CS BUTTON -->
-<div class="wa-float">
-  <span class="wa-tooltip">💬 Hubungi CS kami</span>
-  <a class="wa-btn"
-     href="https://wa.me/6285892004051?text=Halo%20Admin%20Laporan%20Hijau%2C%20saya%20butuh%20bantuan%20%F0%9F%8C%BF"
-     target="_blank" rel="noopener" aria-label="Hubungi CS via WhatsApp">
-    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="15" cy="9.5" r="4" fill="white"/>
-      <path d="M9 10.5 Q9 5 15 5 Q21 5 21 10.5" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-      <rect x="7.5" y="10" width="3" height="4.5" rx="1.5" fill="white"/>
-      <rect x="19.5" y="10" width="3" height="4.5" rx="1.5" fill="white"/>
-      <path d="M9 21.5 Q9 17 15 17 Q21 17 21 21.5" fill="white"/>
-      <path d="M8 14 Q6.5 17 8.5 18.5" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-      <circle cx="8.5" cy="19" r="1.2" fill="white"/>
-    </svg>
-  </a>
-</div>
-
 </body>
 </html>
